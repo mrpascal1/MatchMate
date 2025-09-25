@@ -86,7 +86,7 @@
             <ImageView
                 android:id="@+id/btnDecline"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="80dp"
                 android:layout_marginHorizontal="8dp"
                 android:src="@drawable/ic_cross"
                 android:layout_weight="1"/>
@@ -94,7 +94,7 @@
             <ImageView
                 android:id="@+id/btnAccept"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="80dp"
                 android:layout_marginHorizontal="8dp"
                 android:src="@drawable/ic_done"
                 android:layout_weight="1"/>

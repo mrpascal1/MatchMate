@@ -46,12 +46,17 @@ class MainViewModel @Inject constructor(
     private fun initializeAndLoadData() {
         viewModelScope.launch {
             repository.initializePagination()
-
-            networkState.collect { isConnected ->
-                if (!initialDataFetched && isConnected == true) {
+            networkMonitor.isConnected.collect { isConnected ->
+                if (isConnected == true && !initialDataFetched) {
                     initialDataFetched = true
                     _isLoadingMore.value = true
-                    repository.loadInitialPage()
+                    var success = false
+                    while (!success) {
+                        success = repository.loadInitialPage().isSuccess
+                        if (!success) {
+                            kotlinx.coroutines.delay(3000) // retry every 3 seconds
+                        }
+                    }
                     _isLoadingMore.value = false
                 }
             }

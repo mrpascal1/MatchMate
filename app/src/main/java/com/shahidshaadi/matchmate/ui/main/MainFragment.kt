@@ -9,7 +9,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -56,25 +58,27 @@ class MainFragment : Fragment() {
     private fun observeLoadMore() {
         var wasLoading = false
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.isLoadingMore.collect { isLoading ->
-                loadingAdapter.isVisible = isLoading
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.isLoadingMore.collect { isLoading ->
+                    loadingAdapter.isVisible = isLoading
 
-                if (wasLoading && !isLoading) {
-                    binding.recyclerView.post {
-                        val lm = binding.recyclerView.layoutManager as? LinearLayoutManager
-                        val lastVisible = lm?.findLastVisibleItemPosition() ?: -1
-                        val totalItems = matchAdapter.itemCount
+                    if (wasLoading && !isLoading) {
+                        binding.recyclerView.post {
+                            val lm = binding.recyclerView.layoutManager as? LinearLayoutManager
+                            val lastVisible = lm?.findLastVisibleItemPosition() ?: -1
+                            val totalItems = matchAdapter.itemCount
 
-                        if (lastVisible >= totalItems - 3 && totalItems > 0) {
-                            val targetPosition = (totalItems - 1).coerceAtLeast(0)
-                            lm?.scrollToPositionWithOffset(targetPosition, 0)
+                            if (lastVisible >= totalItems - 3 && totalItems > 0) {
+                                val targetPosition = (totalItems - 1).coerceAtLeast(0)
+                                lm?.scrollToPositionWithOffset(targetPosition, 0)
 
-                            val cardHeightPx = 200
-                            binding.recyclerView.smoothScrollBy(0, cardHeightPx)
+                                val cardHeightPx = 200
+                                binding.recyclerView.smoothScrollBy(0, cardHeightPx)
+                            }
                         }
                     }
+                    wasLoading = isLoading
                 }
-                wasLoading = isLoading
             }
         }
     }
@@ -102,20 +106,23 @@ class MainFragment : Fragment() {
 
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState.collect { state ->
-                when (state) {
-                    is MainUiState.Loading -> {
-                        binding.recyclerView.visibility = View.GONE
-                    }
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    when (state) {
+                        is MainUiState.Loading -> {
+                            binding.recyclerView.visibility = View.GONE
+                        }
 
-                    is MainUiState.Success -> {
-                        binding.recyclerView.visibility = View.VISIBLE
-                        matchAdapter.submitList(state.matches)
-                    }
+                        is MainUiState.Success -> {
+                            binding.recyclerView.visibility = View.VISIBLE
+                            matchAdapter.submitList(state.matches)
+                        }
 
-                    is MainUiState.Error -> {
-                        binding.recyclerView.visibility = View.GONE
-                        Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+                        is MainUiState.Error -> {
+                            binding.recyclerView.visibility = View.GONE
+                            Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT)
+                                .show()
+                        }
                     }
                 }
             }
@@ -132,9 +139,11 @@ class MainFragment : Fragment() {
 
     private fun observeNetwork() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.networkState.collect { isConnected ->
-                binding.offlineBanner.visibility =
-                    if (isConnected == false) View.VISIBLE else View.GONE
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.networkState.collect { isConnected ->
+                    binding.offlineBanner.visibility =
+                        if (isConnected == false) View.VISIBLE else View.GONE
+                }
             }
         }
     }
