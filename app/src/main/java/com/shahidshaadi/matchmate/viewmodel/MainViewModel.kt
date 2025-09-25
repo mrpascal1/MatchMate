@@ -50,13 +50,7 @@ class MainViewModel @Inject constructor(
                 if (isConnected == true && !initialDataFetched) {
                     initialDataFetched = true
                     _isLoadingMore.value = true
-                    var success = false
-                    while (!success) {
-                        success = repository.loadInitialPage().isSuccess
-                        if (!success) {
-                            kotlinx.coroutines.delay(3000) // retry every 3 seconds
-                        }
-                    }
+                    repository.loadInitialPage()
                     _isLoadingMore.value = false
                 }
             }
