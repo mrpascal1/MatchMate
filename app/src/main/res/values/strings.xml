@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MatchMate</string>
+    <string name="age_label">Age: %1$d</string>
+    <string name="gender_label">Gender: %1$s</string>
+    <string name="member_accepted">Member Accepted</string>
+    <string name="member_declined">Member Declined</string>
+</resources>
