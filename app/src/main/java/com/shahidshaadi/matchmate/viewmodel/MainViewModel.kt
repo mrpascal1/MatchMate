@@ -38,7 +38,6 @@ class MainViewModel @Inject constructor(
 
     private fun loadCachedData() {
         viewModelScope.launch {
-            _uiState.value = MainUiState.Loading
             repository.allMatches.collect { matches ->
                 if (matches.isNotEmpty()) {
                     _uiState.value = MainUiState.Success(matches)
