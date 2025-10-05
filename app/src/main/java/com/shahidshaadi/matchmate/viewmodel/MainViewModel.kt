@@ -7,6 +7,7 @@ import com.shahidshaadi.matchmate.model.MatchProfile
 import com.shahidshaadi.matchmate.ui.state.MainUiState
 import com.shahidshaadi.matchmate.utils.NetworkMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,8 +38,11 @@ class MainViewModel @Inject constructor(
 
     private fun loadCachedData() {
         viewModelScope.launch {
+            _uiState.value = MainUiState.Loading
             repository.allMatches.collect { matches ->
-                _uiState.value = MainUiState.Success(matches)
+                if (matches.isNotEmpty()) {
+                    _uiState.value = MainUiState.Success(matches)
+                }
             }
         }
     }
